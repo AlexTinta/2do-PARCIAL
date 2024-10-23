@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Productos</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #081829;
+        }
+        .container {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #edf2f1;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2 {
+            color: #08325c;
+        }
+        .btn {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <div class="alert alert-info" style="border-radius: 8px; padding: 20px;">
+            <h1 class="text-center">SEGUNDO PARCIAL</h1>
+            <h1 class="text-left">Nombre: Alex Pedro Tinta Murga</h1>
+            <h1 class="text-left">Carnet: 6784578 LP</h1>
+        </div>
+    </div>
+      
+    <div class="container">
+        <h1 class="text-center">Gestión de Productos</h1>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="{{ url_for('agregar_producto') }}" class="mb-4">
+            <div class="form-row">
+                <div class="col">
+                    <input type="text" class="form-control" name="id" placeholder="ID" required>
+                </div>
+                <div class="col">
+                    <input type="text" class="form-control" name="nombre" placeholder="Nombre" required>
+                </div>
+                <div class="col">
+                    <input type="number" class="form-control" name="cantidad" placeholder="Cantidad" required>
+                </div>
+                <div class="col">
+                    <input type="number" class="form-control" name="precio" placeholder="Precio" step="0.01" required>
+                </div>
+                <div class="col">
+                    <input type="date" class="form-control" name="fecha_vencimiento" placeholder="Fecha de Vencimiento" required>
+                </div>
+                <div class="col">
+                    <input type="text" class="form-control" name="categoria" placeholder="Categoría" required>
+                </div>
+                <div class="col">
+                    <button type="submit" class="btn btn-primary">Agregar  Producto</button>
+                </div>
+            </div>
+        </form>
+
+        <h2 class="mt-4">Lista de Productos</h2>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Cantidad</th>
+                    <th>Precio</th>
+                    <th>Fecha de Vencimiento</th>
+                    <th>Categoría</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for producto in productos %}
+                <tr>
+                    <td>{{ producto.id }}</td>
+                    <td>{{ producto.nombre }}</td>
+                    <td>{{ producto.cantidad }}</td>
+                    <td>${{ producto.precio }}</td>
+                    <td>{{ producto.fecha_vencimiento }}</td>
+                    <td>{{ producto.categoria }}</td>
+                    <td>
+                        <form method="POST" action="{{ url_for('eliminar_producto', id=producto.id) }}" style="display:inline;">
+                            <button type="submit" class="btn btn-danger">Eliminar</button>
+                        </form>
+                        <button class="btn btn-warning" data-toggle="modal" data-target="#editModal{{ producto.id }}">Editar</button>
+                    </td>
+                </tr>
+
+                <!-- Modal de edición -->
+                <div class="modal fade" id="editModal{{ producto.id }}" tabindex="-1" role="dialog" aria-labelledby="editModalLabel{{ producto.id }}" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="editModalLabel{{ producto.id }}">Editar Producto</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <form method="POST" action="{{ url_for('editar_producto', id=producto.id) }}">
+                                <div class="modal-body">
+                                    <div class="form-group">
+                                        <label for="nombre">Nombre</label>
+                                        <input type="text" class="form-control" name="nombre" value="{{ producto.nombre }}" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="cantidad">Cantidad</label>
+                                        <input type="number" class="form-control" name="cantidad" value="{{ producto.cantidad }}" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="precio">Precio</label>
+                                        <input type="number" class="form-control" name="precio" value="{{ producto.precio }}" step="0.01" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="fecha_vencimiento">Fecha de Vencimiento</label>
+                                        <input type="date" class="form-control" name="fecha_vencimiento" value="{{ producto.fecha_vencimiento }}" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="categoria">Categoría</label>
+                                        <input type="text" class="form-control" name="categoria" value="{{ producto.categoria }}" required>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Script para Bootstrap -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
